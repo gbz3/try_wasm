@@ -1,13 +1,11 @@
 import { assertEquals } from "https://deno.land/std@0.107.0/testing/asserts.ts"
-import { WasmModule } from "../src/wasm.ts"
+import { WasmModule, WasmBuffer } from "../src/wasm.ts"
 
 Deno.test("load add.wat", async () => {
-    const code = await Deno.readFile("data/add.wat")
-    const wasmModule = new WasmModule(code)
-    assertEquals(`(module
-  (func (export "add") (param $p1 i32) (param $p2 i32) (result i32)
-    (i32.add (local.get $p1) (local.get $p2))
-  )
-)
-`, wasmModule.code)
+    const code = await Deno.readFile("data/module.wasm")
+    const wasmBuffer = new WasmBuffer(code)
+    const wasmModule = new WasmModule()
+    wasmModule.load(wasmBuffer)
+    assertEquals(new Uint8Array([0x00, 0x61, 0x73, 0x6d]), wasmModule.magic)
+    assertEquals(new Uint8Array([0x01, 0x00, 0x00, 0x00]), wasmModule.version)
 })

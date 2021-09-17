@@ -1,4 +1,4 @@
-import { WasmModule } from "../wasm.ts"
+import { WasmModule, WasmBuffer } from "../wasm.ts"
 
 const {args: [filename]} = Deno
 
@@ -8,5 +8,7 @@ if (!filename) {
 }
 
 const code = await Deno.readFile(filename)
-const wasmModule = new WasmModule(code)
+const wasmBuffer = new WasmBuffer(code)
+const wasmModule = new WasmModule()
+wasmModule.load(wasmBuffer)
 console.log(JSON.stringify(wasmModule, null, "  "))
