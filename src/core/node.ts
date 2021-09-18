@@ -163,7 +163,7 @@ export class ExprNode {
   load(buffer: Buffer) {
     while (true) {
       const opcode = buffer.readByte() as Op
-      if (opcode === Op.End) {
+      if (opcode === Op.End || opcode === Op.Else) {
         this.endOp = opcode
         break
       }
@@ -182,6 +182,8 @@ export class ExprNode {
 }
 
 const Op = {
+  If: 0x04,
+  Else: 0x05,
   End: 0x0b,
   LocalGet: 0x20,
   LocalSet: 0x21,
@@ -199,6 +201,8 @@ export class InstrNode {
 
   static create(opcode: Op): InstrNode | null {
     switch (opcode) {
+      case Op.If:
+        return new IfInstrNode(opcode)
       case Op.I32Const:
         return new I32ConstInstrNode(opcode)
       case Op.LocalGet:
@@ -291,3 +295,21 @@ export class I32EqzInstrNode extends InstrNode {}
 export class I32LtSInstrNode extends InstrNode {}
 export class I32GeSInstrNode extends InstrNode {}
 export class I32RemSInstrNode extends InstrNode {}
+
+type S33 = number
+type BlockType = 0x40 | ValType | S33
+export class IfInstrNode extends InstrNode {
+  blockType!: BlockType
+  thenInstrs!: ExprNode
+  elseInstrs!: ExprNode
+
+  load(buffer: Buffer) {
+    this.blockType = buffer.readByte()
+    this.thenInstrs = new ExprNode()
+    this.thenInstrs.load(buffer)
+    if (this.thenInstrs.endOp === Op.Else) {
+      this.elseInstrs = new ExprNode()
+      this.elseInstrs.load(buffer)
+    }
+  }
+}
