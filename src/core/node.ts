@@ -154,12 +154,6 @@ export class LocalsNode {
   }
 }
 
-const Op = {
-  I32Const: 0x41,
-  End: 0x0b,
-} as const
-type Op = typeof Op[keyof typeof Op]
-
 export class ExprNode {
   instrs: InstrNode[] = []
   endOp!: Op
@@ -185,6 +179,14 @@ export class ExprNode {
   }
 }
 
+const Op = {
+  LocalGet: 0x20,
+  LocalSet: 0x21,
+  I32Const: 0x41,
+  End: 0x0b,
+} as const
+type Op = typeof Op[keyof typeof Op]
+
 export class InstrNode {
   opcode: Op
 
@@ -192,6 +194,10 @@ export class InstrNode {
     switch (opcode) {
       case Op.I32Const:
         return new I32ConstInstrNode(opcode)
+      case Op.LocalGet:
+        return new LocalGetInstrNode(opcode)
+      case Op.LocalSet:
+        return new LocalSetInstrNode(opcode)
       default:
         return null
     }
@@ -211,5 +217,21 @@ export class I32ConstInstrNode extends InstrNode {
 
   load(buffer: Buffer) {
     this.num = buffer.readI32()
+  }
+}
+
+export class LocalGetInstrNode extends InstrNode {
+  localIdx!: number
+
+  load(buffer: Buffer) {
+    this.localIdx = buffer.readU32()
+  }
+}
+
+export class LocalSetInstrNode extends InstrNode {
+  localIdx!: number
+
+  load(buffer: Buffer) {
+    this.localIdx = buffer.readU32()
   }
 }
