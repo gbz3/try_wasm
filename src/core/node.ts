@@ -189,6 +189,7 @@ const Op = {
   End: 0x0b,
   Br: 0x0c,
   BrIf: 0x0d,
+  Call: 0x10,
   LocalGet: 0x20,
   LocalSet: 0x21,
   I32Const: 0x41,
@@ -215,6 +216,8 @@ export class InstrNode {
         return new BrInstrNode(opcode)
       case Op.BrIf:
         return new BrIfInstrNode(opcode)
+      case Op.Call:
+        return new CallInstrNode(opcode)
       case Op.LocalGet:
         return new LocalGetInstrNode(opcode)
       case Op.LocalSet:
@@ -362,5 +365,14 @@ export class BrIfInstrNode extends InstrNode {
 
   load(buffer: Buffer) {
     this.labelIdx = buffer.readU32()
+  }
+}
+
+type FuncIdx = number
+export class CallInstrNode extends InstrNode {
+  funcIdx!: FuncIdx
+
+  load(buffer: Buffer) {
+    this.funcIdx = buffer.readU32()
   }
 }
