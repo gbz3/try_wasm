@@ -517,4 +517,9 @@ export class CallInstrNode extends InstrNode {
   load(buffer: Buffer) {
     this.funcIdx = buffer.readU32()
   }
+
+  store(buffer: Buffer) {
+    super.store(buffer)
+    buffer.writeU32(this.funcIdx)
+  }
 }
