@@ -25,3 +25,11 @@ Deno.test("load local.wat", async () => {
   wasmModule.load(wasmBuffer)
   assertEquals(3, wasmModule.sections.length)
 })
+
+Deno.test("load add.wat", async () => {
+  const code = await Deno.readFile("data/add.wasm")
+  const wasmBuffer = new WasmBuffer(code)
+  const wasmModule = new WasmModule()
+  wasmModule.load(wasmBuffer)
+  assertEquals(4, wasmModule.sections.length)
+})
