@@ -182,9 +182,13 @@ export class ExprNode {
 }
 
 const Op = {
+  Block: 0x02,
+  Loop: 0x03,
   If: 0x04,
   Else: 0x05,
   End: 0x0b,
+  Br: 0x0c,
+  BrIf: 0x0d,
   LocalGet: 0x20,
   LocalSet: 0x21,
   I32Const: 0x41,
@@ -201,14 +205,22 @@ export class InstrNode {
 
   static create(opcode: Op): InstrNode | null {
     switch (opcode) {
+      case Op.Block:
+        return new BlockInstrNode(opcode)
+      case Op.Loop:
+        return new LoopInstrNode(opcode)
       case Op.If:
         return new IfInstrNode(opcode)
-      case Op.I32Const:
-        return new I32ConstInstrNode(opcode)
+      case Op.Br:
+        return new BrInstrNode(opcode)
+      case Op.BrIf:
+        return new BrIfInstrNode(opcode)
       case Op.LocalGet:
         return new LocalGetInstrNode(opcode)
       case Op.LocalSet:
         return new LocalSetInstrNode(opcode)
+      case Op.I32Const:
+        return new I32ConstInstrNode(opcode)
       case Op.I32Eqz:
         return new I32EqzInstrNode(opcode)
       case Op.I32LtS:
@@ -311,5 +323,44 @@ export class IfInstrNode extends InstrNode {
       this.elseInstrs = new ExprNode()
       this.elseInstrs.load(buffer)
     }
+  }
+}
+
+export class BlockInstrNode extends InstrNode {
+  blockType!: BlockType
+  instrs!: ExprNode
+
+  load(buffer: Buffer) {
+    this.blockType = buffer.readByte()
+    this.instrs = new ExprNode()
+    this.instrs.load(buffer)
+  }
+}
+
+export class LoopInstrNode extends InstrNode {
+  blockType!: BlockType
+  instrs!: ExprNode
+
+  load(buffer: Buffer) {
+    this.blockType = buffer.readByte()
+    this.instrs = new ExprNode()
+    this.instrs.load(buffer)
+  }
+}
+
+type LabelIdx = number
+export class BrInstrNode extends InstrNode {
+  labelIdx!: LabelIdx
+
+  load(buffer: Buffer) {
+    this.labelIdx = buffer.readU32()
+  }
+}
+
+export class BrIfInstrNode extends InstrNode {
+  labelIdx!: LabelIdx
+
+  load(buffer: Buffer) {
+    this.labelIdx = buffer.readU32()
   }
 }
