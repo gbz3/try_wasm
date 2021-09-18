@@ -24,3 +24,11 @@ Deno.test("store const.wasm", async () => {
   wasmModule.store(newBuffer)
   assertEquals(code, newCode)
 })
+
+Deno.test("store local.wasm", async () => {
+  const [wasmModule, wasmBuffer, code] = await loadModule("data/local.wasm")
+  const newCode = new Uint8Array(wasmBuffer.byteLength)
+  const newBuffer = new WasmBuffer(newCode)
+  wasmModule.store(newBuffer)
+  assertEquals(code, newCode)
+})
