@@ -163,4 +163,31 @@ export class Buffer {
   peek(pos = 0): number {
     return this.#view.getUint8(pos)
   }
+
+  get cursor(): number {
+    return this.#cursor
+  }
+
+  protected setCursor(c: number) {
+    this.#cursor = c
+  }
+}
+
+export class StackBuffer extends Buffer {
+  readBytes(size: number): Uint8Array {
+    if (this.cursor - size < 0) {
+      return new Uint8Array(0)
+    }
+
+    const slice = this.buffer.slice(this.cursor - size, this.cursor)
+    this.setCursor(this.cursor - size)
+    return new Uint8Array(slice).reverse()
+  }
+
+  writeBytes(bytes: ArrayBuffer) {
+    const u8s = new Uint8Array(bytes).reverse()
+    for (const byte of u8s) {
+      this.writeByte(byte)
+    }
+  }
 }

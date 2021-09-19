@@ -1,4 +1,5 @@
 import { Buffer } from "./buffer.ts"
+import { Instance } from "./instance.ts"
 
 type I32 = 0x7f
 type I64 = 0x7e
@@ -61,6 +62,12 @@ export class ModuleNode {
 
   get codeSection(): CodeSectionNode {
     return this.sections.find(sec => sec instanceof CodeSectionNode) as CodeSectionNode
+  }
+
+  instantiate(): Instance {
+    const inst = new Instance(this)
+    inst.compile()
+    return inst
   }
 }
 
